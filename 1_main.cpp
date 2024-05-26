@@ -1,4 +1,5 @@
 ﻿#include "0_input_check.h"
+#include "2_i_sort.h"
 
 #define MENU                                                    \
     "\nВыберите один из пунктов меню!"                          \
@@ -44,13 +45,72 @@ void input_rows_and_columns(int& rows, int& columns)
 }
 
 
+void make_3_vec(int **matrix ,int rows, int columns, std::vector<int> &diagonal,
+                std::vector<int> &upper, std::vector<int> &lower)
+{
+  
+  for (int i = 0; i < rows; ++i) {
+    for (int j = 0; j < columns; ++j) {
+      if (i == j) {
+        diagonal.push_back(matrix[i][j]);
+      }
+      else if (i < j) {
+        upper.push_back(matrix[i][j]);
+      }
+      else {
+        lower.push_back(matrix[i][j]);
+      }
+    }
+  }
+}
 
+void from_vec_to_matrix(int** &matrix, int rows, int columns, std::vector<int>& diagonal,
+                        std::vector<int>& upper, std::vector<int>& lower) 
+{
+  int k1 = 0, k2 = 0, k3 = 0;
+  for (int i = 0; i < rows; ++i) {
+    for (int j = 0; j < columns; ++j) {
+      if (i == j) {
+        matrix[i][j] = diagonal[k1];
+        k1++;
+      }
+      else if (i < j) {
+        matrix[i][j] = upper[k2];
+        k2++;
+      }
+      else {
+        matrix[i][j] = lower[k3];
+        k3++;
+      }
+    }
+  }
+}
 
+void show_matrix(int** matrix, int rows, int columns)
+{
+  for (int i = 0; i < rows; i++) {
+    for (int j = 0; j < columns; j++)
+      std::cout << matrix[i][j] << "\t";
+    std::cout << std::endl;
+  }
+}
+
+void swap_matrix(int**& matrix, int** copy_matrix, int rows, int columns)
+{
+  for (int i = 0; i < rows; ++i)
+    for (int j = 0; j < columns; ++j) 
+      matrix[i][j] = copy_matrix[i][j];
+}
 
 int main(void)
 {
 	setlocale(LC_ALL, "Russian");
 	InputCheck _input;
+  bubble_sort _bubble;
+  selection_sort _selection;
+  insertion_sort _insertion;
+  shell_sort _shell;
+  quick_sort _quick;
   const int begin_choice = 1, end_choice = 4;
   int choice = 0, rows = 0, columns = 0;
   // Приветствие 
@@ -70,52 +130,119 @@ int main(void)
     case MANUAL_INPUT:
     {
       input_rows_and_columns(rows, columns);
+
       int** matrix{ new int* [rows] {} };
       for (int i = 0; i < rows; i++)
         matrix[i] = new int[columns] {};
 
+      int** matrix_copy{ new int* [rows] {} };
+      for (int i = 0; i < rows; i++)
+        matrix_copy[i] = new int[columns] {};
+      
+      int num_comparisons = 0, num_permutations = 0;
+
+      std::vector<int> diagonal;
+      std::vector<int> upper;
+      std::vector<int> lower;
+
       for (int i = 0; i < rows; i++)
         for (int j = 0; j < columns; j++) {
           std::cout << "Введите [" << (i + 1) << "," << (j + 1) << "] элемент матрицы: ";
-          std::cin >> matrix[i][j];
+          matrix[i][j] = _input.get_int();
+          matrix_copy[i][j] = matrix[i][j];
         }
 
-
-      std::cout << "\nИсходная матрица:\n";
-      for (int i = 0; i < rows; i++)
-      {
-        // выводим данные столбцов i-й строки
-        for (int j = 0; j < columns; j++)
-        {
-          std::cout << matrix[i][j] << "\t";
-        }
-        std::cout << std::endl;
-      }
+      
 
 
+      make_3_vec(matrix, rows, columns, diagonal, upper, lower);
+
+      std::cout << "\nИсходная матрица.\n";
+      show_matrix(matrix, rows, columns);
 
 
+      // bubble_sort
+      _bubble.Sort(diagonal, num_comparisons, num_permutations, 1);
+      _bubble.Sort(upper, num_comparisons, num_permutations, 0);
+      _bubble.Sort(lower, num_comparisons, num_permutations, 1);
 
+      std::cout << "\n\nСортировка пузырьком.\n"
+                << "Количество сравнений: " << num_comparisons << std::endl 
+                << "Количество перестановок: " << num_permutations << std::endl;
 
-
-
-
-
-
+      from_vec_to_matrix(matrix, rows, columns, diagonal, upper, lower);
+      
 
       std::cout << "\nОтфильтрованная матрица:\n";
-      for (int i = 0; i < rows; i++)
-      {
-        for (int j = 0; j < columns; j++)
-        {
-          std::cout << matrix[i][j] << "\t";
-        }
-        std::cout << std::endl;
-      }
+      show_matrix(matrix, rows, columns);
+      swap_matrix(matrix, matrix_copy, rows, columns);
 
-      for (int i = 0; i < rows; i++)
+      // selection_sort
+      _selection.Sort(diagonal, num_comparisons, num_permutations, 1);
+      _selection.Sort(upper, num_comparisons, num_permutations, 0);
+      _selection.Sort(lower, num_comparisons, num_permutations, 1);
+
+      std::cout << "\n\nСортировка отбором.\n"
+        << "Количество сравнений: " << num_comparisons << std::endl
+        << "Количество перестановок: " << num_permutations << std::endl;
+
+      from_vec_to_matrix(matrix, rows, columns, diagonal, upper, lower);
+
+      std::cout << "\nОтфильтрованная матрица:\n";
+      show_matrix(matrix, rows, columns);
+      swap_matrix(matrix, matrix_copy, rows, columns);
+
+      // insertion_sort
+      _insertion.Sort(diagonal, num_comparisons, num_permutations, 1);
+      _insertion.Sort(upper, num_comparisons, num_permutations, 0);
+      _insertion.Sort(lower, num_comparisons, num_permutations, 1);
+
+      std::cout << "\n\nСортировка вставкой.\n"
+        << "Количество сравнений: " << num_comparisons << std::endl
+        << "Количество перестановок: " << num_permutations << std::endl;
+
+      from_vec_to_matrix(matrix, rows, columns, diagonal, upper, lower);
+      
+      std::cout << "\nОтфильтрованная матрица:\n";
+      show_matrix(matrix, rows, columns);
+      swap_matrix(matrix, matrix_copy, rows, columns);
+
+      // shell_sort
+      _shell.Sort(diagonal, num_comparisons, num_permutations, 1);
+      _shell.Sort(upper, num_comparisons, num_permutations, 0);
+      _shell.Sort(lower, num_comparisons, num_permutations, 1);
+
+      std::cout << "\n\nСортировка иетодом Шеллом.\n"
+        << "Количество сравнений: " << num_comparisons << std::endl
+        << "Количество перестановок: " << num_permutations << std::endl;
+
+      from_vec_to_matrix(matrix, rows, columns, diagonal, upper, lower);
+
+      std::cout << "\nОтфильтрованная матрица:\n";
+      show_matrix(matrix, rows, columns);
+      swap_matrix(matrix, matrix_copy, rows, columns);
+
+      // shell_sort
+      _quick.Sort(diagonal, num_comparisons, num_permutations, 1);
+      _quick.Sort(upper, num_comparisons, num_permutations, 0);
+      _quick.Sort(lower, num_comparisons, num_permutations, 1);
+
+      std::cout << "\n\nБыстрая сортировка.\n"
+        << "Количество сравнений: " << num_comparisons << std::endl
+        << "Количество перестановок: " << num_permutations << std::endl;
+
+      from_vec_to_matrix(matrix, rows, columns, diagonal, upper, lower);
+
+      std::cout << "\nОтфильтрованная матрица:\n";
+      show_matrix(matrix, rows, columns);
+      swap_matrix(matrix, matrix_copy, rows, columns);
+
+      for (int i = 0; i < rows; i++) {
         delete[] matrix[i];
+        delete[] matrix_copy[i];
+      }
       delete[] matrix;
+      delete[] matrix_copy;
       break;
     }
     case RANDOM_INPUT:
