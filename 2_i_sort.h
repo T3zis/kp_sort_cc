@@ -7,7 +7,6 @@ public:
 	virtual ~ISort() {}
 
 	virtual void Sort(std::vector<int>& vec, int& num_comparisons, int& num_permutations, int ascending_or_descending) = 0;
-
 };
 
 class bubble_sort : public ISort {
@@ -16,19 +15,20 @@ public:
 
 	void Sort(std::vector<int>& vec, int& num_comparisons, int& num_permutations, int ascending_or_descending) override
 	{
-		int n = vec.size();
-		for (int i = 0; i < n - 1; i++) {
-			bool is_sorted = true;
-			for (int j = 0; j < n - i - 1; j++) {
+		size_t n = vec.size();
+
+		for (size_t i = 0; i < n; i++) {
+			bool swapped = false;
+			for (size_t j = 0; j < n - 1; j++) {
 				num_comparisons++;
 				if ((ascending_or_descending == 1 && vec[j] > vec[j + 1]) ||
-					 (ascending_or_descending != 1 && vec[j] < vec[j + 1])) {
+					  (ascending_or_descending != 1 && vec[j] < vec[j + 1])) {
 					std::swap(vec[j], vec[j + 1]);
 					num_permutations++;
-					is_sorted = false;
+					swapped = true;
 				}
 			}
-			if (is_sorted) break;
+			if (!swapped) break;
 		}
 	}
 };
@@ -39,20 +39,21 @@ public:
 
 	void Sort(std::vector<int>& vec, int& num_comparisons, int& num_permutations, int ascending_or_descending) override
 	{
-		int n = vec.size();
-		for (int i = 0; i < n - 1; i++) {
-			int extreme_index = i;
-			for (int j = i + 1; j < n; j++) {
+		size_t n = vec.size();
+		
+		for (size_t i = 0; i < n; i++) {
+			bool swapped = false;
+			size_t min_in = i;
+			for (size_t j = 0; j < n - 1; j++) {
 				num_comparisons++;
-				if ((ascending_or_descending == 1 && vec[j] < vec[extreme_index]) ||
-					(ascending_or_descending != 1 && vec[j] > vec[extreme_index])) {
-					extreme_index = j;
+				if ((ascending_or_descending == 1 && vec[j] > vec[min_in]) ||
+					(ascending_or_descending != 1 && vec[j] < vec[min_in])) {
+					std::swap(vec[j], vec[min_in]);
+					num_permutations++;
+					swapped = true;
 				}
 			}
-			if (i != extreme_index) {
-				std::swap(vec[i], vec[extreme_index]);
-				num_permutations++;
-			}
+			if (!swapped) break;
 		}
 	}
 };
@@ -61,23 +62,26 @@ class insertion_sort : public ISort {
 public:
 	insertion_sort() : ISort() {}
 
-  void Sort(std::vector<int>& vec, int& num_comparisons, int& num_permutations, int ascending_or_descending) override {
-    int n = vec.size();
-    for (int i = 1; i < n; i++) {
-      int insert = vec[i];
-			int j = i - 1;
-        while (j >= 0 && ((ascending_or_descending == 1 && vec[j] > insert) ||
-                          (ascending_or_descending != 1 && vec[j] < insert))) {
-          num_comparisons++;
-          vec[j + 1] = vec[j];
-          j--;
-          num_permutations++;
-        }
-        vec[j + 1] = insert;
-        num_permutations++;
-    }
-  }
+	void Sort(std::vector<int>& vec, int& num_comparisons, int& num_permutations, int ascending_or_descending) {
+		size_t n = vec.size();
+		int key = 0, j = 0, n_p = 0, n_c = 0;
+		for (size_t i = 1; i < n; i++) {
+			key = vec[i];
+			j = i - 1;
+			bool swapped = false;
+			while (j >= 0 && ((ascending_or_descending == 1 && vec[j] > key) ||
+				    (ascending_or_descending != 1 && vec[j] < key))) {
+				vec[j + 1] = vec[j];
+				j--;
+				num_comparisons++;
+				swapped = true;
+			}
+			vec[j + 1] = key;
+			if (swapped) num_permutations++;
+		}
+	}
 };
+
 
 class shell_sort : public ISort {
 public:

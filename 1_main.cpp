@@ -163,7 +163,7 @@ int main(void)
 
       // bubble_sort
       _bubble.Sort(diagonal, num_comparisons, num_permutations, 1);
-      _bubble.Sort(upper, num_comparisons, num_permutations, 0);
+      _bubble.Sort(upper, num_comparisons, num_permutations, 100);
       _bubble.Sort(lower, num_comparisons, num_permutations, 1);
 
       std::cout << "\n\nСортировка пузырьком.\n"
@@ -176,10 +176,11 @@ int main(void)
       std::cout << "\nОтфильтрованная матрица:\n";
       show_matrix(matrix, rows, columns);
       swap_matrix(matrix, matrix_copy, rows, columns);
+      num_comparisons = 0, num_permutations = 0;
 
       // selection_sort
       _selection.Sort(diagonal, num_comparisons, num_permutations, 1);
-      _selection.Sort(upper, num_comparisons, num_permutations, 0);
+      _selection.Sort(upper, num_comparisons, num_permutations, 100);
       _selection.Sort(lower, num_comparisons, num_permutations, 1);
 
       std::cout << "\n\nСортировка отбором.\n"
@@ -191,10 +192,11 @@ int main(void)
       std::cout << "\nОтфильтрованная матрица:\n";
       show_matrix(matrix, rows, columns);
       swap_matrix(matrix, matrix_copy, rows, columns);
+      num_comparisons = 0, num_permutations = 0;
 
       // insertion_sort
       _insertion.Sort(diagonal, num_comparisons, num_permutations, 1);
-      _insertion.Sort(upper, num_comparisons, num_permutations, 0);
+      _insertion.Sort(upper, num_comparisons, num_permutations, 100);
       _insertion.Sort(lower, num_comparisons, num_permutations, 1);
 
       std::cout << "\n\nСортировка вставкой.\n"
@@ -206,6 +208,7 @@ int main(void)
       std::cout << "\nОтфильтрованная матрица:\n";
       show_matrix(matrix, rows, columns);
       swap_matrix(matrix, matrix_copy, rows, columns);
+      num_comparisons = 0, num_permutations = 0;
 
       // shell_sort
       _shell.Sort(diagonal, num_comparisons, num_permutations, 1);
@@ -221,6 +224,7 @@ int main(void)
       std::cout << "\nОтфильтрованная матрица:\n";
       show_matrix(matrix, rows, columns);
       swap_matrix(matrix, matrix_copy, rows, columns);
+      num_comparisons = 0, num_permutations = 0;
 
       // shell_sort
       _quick.Sort(diagonal, num_comparisons, num_permutations, 1);
