@@ -39,21 +39,35 @@ public:
 
 	void Sort(std::vector<int>& vec, int& num_comparisons, int& num_permutations, int ascending_or_descending) override
 	{
-		size_t n = vec.size();
-		
-		for (size_t i = 0; i < n; i++) {
-			bool swapped = false;
-			size_t min_in = i;
-			for (size_t j = 0; j < n - 1; j++) {
-				num_comparisons++;
-				if ((ascending_or_descending == 1 && vec[j] > vec[min_in]) ||
-					(ascending_or_descending != 1 && vec[j] < vec[min_in])) {
-					std::swap(vec[j], vec[min_in]);
+		int n = static_cast<int>(vec.size());
+
+		if (ascending_or_descending == 1) {
+			for (int i = 0; i < n - 1; i++) {
+				int min_idx = i;
+				bool swapped = false;
+				for (int j = i + 1; j < n; j++) {
+					num_comparisons++;
+					if (vec[j] < vec[min_idx]) { min_idx = j, swapped = true; }
+				}
+				if (swapped == true) {
+					std::swap(vec[min_idx], vec[i]);
 					num_permutations++;
-					swapped = true;
+				}
+			} 
+		}
+		else {
+			for (int i = 0; i < n - 1; i++) {
+				int max_idx = i;
+				bool swapped = false;
+				for (int j = i + 1; j < n; j++) {
+					num_comparisons++;
+					if (vec[j] > vec[max_idx]) { max_idx = j, swapped = true; }
+				}
+				if (swapped == true) {
+					std::swap(vec[max_idx], vec[i]);
+				  num_permutations++;
 				}
 			}
-			if (!swapped) break;
 		}
 	}
 };
@@ -63,21 +77,19 @@ public:
 	insertion_sort() : ISort() {}
 
 	void Sort(std::vector<int>& vec, int& num_comparisons, int& num_permutations, int ascending_or_descending) {
-		size_t n = vec.size();
-		int key = 0, j = 0, n_p = 0, n_c = 0;
-		for (size_t i = 1; i < n; i++) {
+		int n = static_cast<int>(vec.size());
+		int key = 0;
+		int j = 0;
+		for (int i = 1; i < n; i++) {
 			key = vec[i];
 			j = i - 1;
-			bool swapped = false;
-			while (j >= 0 && ((ascending_or_descending == 1 && vec[j] > key) ||
-				    (ascending_or_descending != 1 && vec[j] < key))) {
+			while (num_comparisons++,j >= 0 && ((ascending_or_descending == 1 &&vec[j] > key) ||
+				(ascending_or_descending != 1 && vec[j] < key))) {
 				vec[j + 1] = vec[j];
+				num_permutations++;
 				j--;
-				num_comparisons++;
-				swapped = true;
 			}
 			vec[j + 1] = key;
-			if (swapped) num_permutations++;
 		}
 	}
 };
@@ -87,64 +99,65 @@ class shell_sort : public ISort {
 public:
 	shell_sort() : ISort() {}
 
-	void Sort(std::vector<int>& vec, int& num_comparisons, int& num_permutations, int ascending_or_descending) override {
-		int n = vec.size();
-		for (int gap = n / 2; gap > 0; gap /= 2) {
+
+	void Sort(std::vector<int>& vec, int& num_comparisons, int& num_permutations, int ascending_or_descending) {
+		int n = static_cast<int>(vec.size());
+		for (int gap = n / 2; gap > 0; gap /= 2)
 			for (int i = gap; i < n; i += 1) {
 				int insert = vec[i];
 				int j;
-				for (j = i; j >= gap && ((ascending_or_descending == 1 && vec[j - gap] > insert) ||
-					(ascending_or_descending != 1 && vec[j - gap] < insert)); j -= gap) {
+				bool permuted = false;
+				for (j = i; j >= gap; j -= gap) {
 					num_comparisons++;
-					vec[j] = vec[j - gap];
-					num_permutations++;
+					if ((ascending_or_descending == 1 && vec[j - gap] > insert) ||
+						  (ascending_or_descending != 1 && vec[j - gap] < insert)) {
+						vec[j] = vec[j - gap];
+						permuted = true;
+					}
+					else break;
 				}
 				vec[j] = insert;
-				num_permutations++;
+				if (permuted) num_permutations++;
 			}
-		}
 	}
 };
+
 
 class quick_sort : public ISort {
 public:
 	quick_sort() : ISort() {}
 
 	void Sort(std::vector<int>& vec, int& num_comparisons, int& num_permutations, int ascending_or_descending) override {
-		recursive_sort(vec, 0, vec.size() - 1, num_comparisons, num_permutations, ascending_or_descending);
+		quickSort(vec, 0, static_cast<int>(vec.size()) - 1, num_comparisons, num_permutations, ascending_or_descending);
 	}
 
 private:
-	void recursive_sort(std::vector<int>& vec, int low, int high, int& num_comparisons, int& num_permutations, int ascending_or_descending) {
+	void quickSort(std::vector<int>& vec, int low, int high, int& num_comparisons, int& num_permutations, int ascending_or_descending) {
 		if (low < high) {
-			int pivot = partition(vec, low, high, num_comparisons, num_permutations, ascending_or_descending);
-			recursive_sort(vec, low, pivot - 1, num_comparisons, num_permutations, ascending_or_descending);
-			recursive_sort(vec, pivot + 1, high, num_comparisons, num_permutations, ascending_or_descending);
-		}
-	}
+			int pivot = vec[(low + high) / 2];
+			int i = low;
+			int j = high;
 
-	int partition(std::vector<int>& vec, int low, int high, int& num_comparisons, int& num_permutations, int ascending_or_descending) {
-		int pivot = vec[(low + high) / 2];
-		int i = low - 1;
-		int j = high + 1;
-		while (true) {
-			do {
-				i++;
-				num_comparisons++;
-			} while ((ascending_or_descending == 1 && vec[i] < pivot) ||
-				(ascending_or_descending != 1 && vec[i] > pivot));
-
-			do {
-				j--;
-				num_comparisons++;
-			} while ((ascending_or_descending == 1 && vec[j] > pivot) ||
-				(ascending_or_descending != 1 && vec[j] < pivot));
-
-			if (i >= j)
-				return j;
-
-			std::swap(vec[i], vec[j]);
-			num_permutations++;
+			while (i <= j) {
+				while (num_comparisons++,(ascending_or_descending == 1 && vec[i] < pivot) || (ascending_or_descending != 1 && vec[i] > pivot)) {
+					i++;
+				}
+				while (num_comparisons++,(ascending_or_descending == 1 && vec[j] > pivot) || (ascending_or_descending != 1 && vec[j] < pivot)) {
+					j--;
+				}
+				if (i <= j) {
+					if (i < j && (vec[i] != vec[j])) {
+						std::swap(vec[i], vec[j]);
+						num_permutations++;
+					}
+					i++;
+					j--;
+				}
+			}
+			if (low < j)
+				quickSort(vec, low, j, num_comparisons, num_permutations, ascending_or_descending);
+			if (i < high)
+				quickSort(vec, i, high, num_comparisons, num_permutations, ascending_or_descending);
 		}
 	}
 };
